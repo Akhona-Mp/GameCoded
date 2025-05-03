@@ -6,11 +6,12 @@ const express = require('express');
 const bodyParser=require('body-parser');
 const cors= require('cors');
 
+
 //app object to define routes and configure server
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL:"https://gamecode-5c399.firebaseio.com"
-
+    
 })
 const app=express();
 const PORT = process.env.PORT||3000;//checks if a port value is set in the enviroment variables(on a server or .env file)
@@ -36,6 +37,53 @@ app.post('/save-progress', async (req, res) => {
     } catch (error) {
       console.error(error);
       res.status(500).send({ error: 'Something went wrong.' });
+    }
+
+  });
+
+  // signup
+app.post('/signup', async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      const userRecord = await admin.auth().createUser({
+        email,
+        password
+      });
+  
+      res.status(201).json({
+        message: 'User created successfully',
+        user: {
+          uid: userRecord.uid,
+          email: userRecord.email
+        }
+      });
+    } catch (error) {
+      console.error('Signup error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  // login
+  app.post('/login', async (req, res) => {
+    const { idToken } = req.body;
+  
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+  
+      const userRecord = await admin.auth().getUser(uid);
+  
+      res.status(200).json({
+        message: 'Login successful',
+        user: {
+          uid: userRecord.uid,
+          email: userRecord.email
+        }
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(401).json({ error: 'Unauthorized' });
     }
   });
   
