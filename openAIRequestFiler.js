@@ -1,36 +1,43 @@
-const { AzureOpenAI } = require("openai");
-const dotenv = require("dotenv");
+class ChatBot {
+  constructor() {
+    const dotenv = require("dotenv");
+    dotenv.config();
 
-dotenv.config();
+    const { AzureOpenAI } = require("openai");
 
-async function getAIResponse(userMessage) {
-  const endpoint = process.env["AZURE_OPENAI_ENDPOINT"] || "https://timot-ma8ot0mv-swedencentral.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-01-01-preview";
-  const apiKey = process.env["AZURE_OPENAI_API_KEY"] || "CYnD9Is0oWLDyrUUF8zOdk61yYQHCS9FCaIqGqWkQcpbdINuyNSpJQQJ99BEACfhMk5XJ3w3AAAAACOGWuWF";
-  const apiVersion = "2025-01-01-preview";
-  const deployment = "gpt-4.1"; // Ensure this matches your deployment name
+    this.client = new AzureOpenAI({
+      endpoint: "https://timot-ma8ot0mv-swedencentral.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-01-01-preview",
+      apiKey: "CYnD9Is0oWLDyrUUF8zOdk61yYQHCS9FCaIqGqWkQcpbdINuyNSpJQQJ99BEACfhMk5XJ3w3AAAAACOGWuWF",
+      apiVersion: "2025-01-01-preview",
+      deployment: "gpt-4.1"
+    });
+  }
 
-  const client = new AzureOpenAI({ endpoint, apiKey, apiVersion, deployment });
+  async getAIResponse(userMessage, history = []) {
+    // Append the current user message to the history passed in
+    const conversation = [
+      { role: "system", content: "You are a coding assistant helping users." },
+      ...history,
+      { role: "user", content: userMessage }
+    ];
 
-  console.log(`User Request: ${userMessage}`); // Log only the user's message
+    const result = await this.client.chat.completions.create({
+      messages: conversation,
+      max_tokens: 800,
+      temperature: 1,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0
+    });
 
-  const result = await client.chat.completions.create({
-    messages: [
-      { role: "system", content: "You are a coding assistant helping kids ages 8-14 learn programming." },
-      { role: "user", content: userMessage } // User's input
-    ],
-    max_tokens: 800,
-    temperature: 1,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    stop: null  
-  });
+    const responseText = result.choices[0].message.content;
 
-  const responseText = result.choices[0].message.content;
-  console.log(`Server Response: ${responseText}`); // Log only the AI response
+    console.log(`User Request: ${userMessage}`);
+    console.log(`Server Response: ${responseText}`);
 
-  return responseText;
+    return responseText;
+  }
 }
 
-// Example usage
+module.exports = ChatBot;
 
