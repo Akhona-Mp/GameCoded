@@ -1,0 +1,21 @@
+{
+  "questions": [
+    {
+      "question": "hello",
+      "answer": "Yoh"
+    },
+    {
+      "question": "hi",
+      "answer": "Hello"
+    },
+    {
+      "question": "Hi",
+      "answer": "/bin/python3 /home/akhona/atm/GameCoded/Data-Sentinel/bot.py"
+    },
+    {
+      "question": "what",
+      "answer": "Sbo is a problem"
+    }
+    
+  ]
+}
