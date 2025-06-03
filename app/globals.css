@@ -8,7 +8,7 @@ body {
 
 @layer utilities {
   .text-balance {
-    text-wrap: break-word;
+    text-wrap: balance;
   }
 }
 
@@ -48,7 +48,6 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -83,83 +82,13 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+}
 
+@layer base {
+  * {
+    @apply border-border;
+  }
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-  a {
-    color: hsl(var(--primary));
-    text-decoration: none;
-  }
-  a:hover {
-    color: hsl(var(--primary-foreground));
-    text-decoration: underline;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    color: hsl(var(--primary));
-  }
-  p {
-    color: hsl(var(--muted-foreground));
-  }
-  .card {
-    background-color: hsl(var(--card));
-    color: hsl(var(--card-foreground));
-    border-radius: var(--radius);
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .popover {
-    background-color: hsl(var(--popover));
-    color: hsl(var(--popover-foreground));
-    border-radius: var(--radius);
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .input {
-    background-color: hsl(var(--input));
-    color: hsl(var(--foreground));
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    padding: 0.5rem;
-  }
-  .input:focus {
-    border-color: hsl(var(--ring));
-    box-shadow: 0 0 0 2px hsl(var(--ring));
-  }
-  .button {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    border: none;
-    border-radius: var(--radius);
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  .button:hover {
-    background-color: hsl(var(--primary-foreground));
-    color: hsl(var(--primary));
-  }
-  .destructive {
-    background-color: hsl(var(--destructive));
-    color: hsl(var(--destructive-foreground));
-    border: none;
-    border-radius: var(--radius);
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  .destructive:hover {
-    background-color: hsl(var(--destructive-foreground));
-    color: hsl(var(--destructive));
-  }
-  .sidebar {
-    background-color: hsl(var(--sidebar-background));
-    color: hsl(var(--sidebar-foreground));
-    border-right: 1px solid hsl(var(--sidebar-border));
-    padding: 1rem;
-    width: 250px;
-    height: 100vh;
-    position: fixed;
+    @apply bg-background text-foreground;
   }
 }

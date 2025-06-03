@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, Trophy, Users, Code, Gamepad2, BookOpen, Play, ArrowRight } from "lucide-react"
-import "@/styles/globals.css"
 
 export default function LandingPage() {
   return (
