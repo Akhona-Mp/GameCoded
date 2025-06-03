@@ -5,7 +5,7 @@ npm -v
 open GameCoded directory on your terminal and run this command:
 npm install
 
-If You Need to (Re)Initialize Tailwind (optional)
+f You Need to (Re)Initialize Tailwind (optional)
 If you ever need to set up Tailwind from scratch, run:
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
