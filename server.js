@@ -1,12 +1,19 @@
-const admin = require('firebase-admin');
-const serviceAccount = require('./firebase-key.json');
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-
+// const admin = require('firebase-admin');
+// const serviceAccount = require('./firebase-key.json');
+// const express = require('express');
+// const bodyParser = require('body-parser');
+// const cors = require('cors');
+import admin from 'firebase-admin';
+import serviceAccount from './firebase-key.json' assert { type: 'json' };
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
 //axio to make HTTP requests to Azure's Direct Line API
-const axios = require('axios');
-require('dotenv').config();
+// const axios = require('axios');
+// require('dotenv').config();
+import axios from 'axios';
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 //Azure direct line config
@@ -20,8 +27,7 @@ admin.initializeApp({
 });
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
+const PORT = process.env.PORT || 3013;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
@@ -113,16 +119,14 @@ app.post('/login', async (req, res) => {
 
 //post to load lessons
 app.post('/getLesson',async (req,res) => {
-    const {lessonsId }=req.body
+    const {lessonId }=req.body
     try{
-        const content = await admin.firestore().collection('lessons').where("id","==",lessonsId).get()
-        if(!content.empty){
-            content.forEach(doc=>{
-            const parsed= doc.data()
+        const content = await admin.firestore().collection('lessons').doc("Lesson"+lessonId).get()
+        if(content.exists){
+            const parsed= content.data()
             res.status(200).json(
-                parsed
+                {parsed}
             )
-        })
         }else{
             console.log("Can't find the lesson")
             res.status(400).json("Failed to find relevant lesson")
@@ -136,7 +140,7 @@ app.post('/getLesson',async (req,res) => {
 //Load course
 app.post('/getCourse',async (req,res)=>{
     const{course}=req.body
-    const content= await admin.firestore().collection(lessons).where("language","==",course).get()
+    const content= await admin.firestore().collection('lessons').where("language","==",course).get()
     let summaries=[]
     if(!content.empty){
             content.forEach(doc=>{
@@ -151,21 +155,18 @@ app.post('/getCourse',async (req,res)=>{
                 )
             })
     }
-    res.status(200).json(
+    res.status(200).json({
         course
-        ,summaries
+        ,summaries}
     )
 })
 //check exercise
 app.post("/mark",async (req,res)=>{
     const {userId,id,answer}=req.body
-    const memo= await admin.firestore().collection('lessons').where("id","==",id).get()
-    let lessonRef;
+    const lessonRef= await admin.firestore().collection('lessons').doc("Lesson"+id)
     let result;
-    memo.forEach(doc=>{
-        lessonRef=doc
-    })
-    if(answer===check.get('lesson_answers')){
+    const check = lessonRef.get()
+    if(answer===check.lesson_answers){
         const userRef= admin.firestore().collection('users').doc(userId)
         await userRef.update({
             completedLessons: admin.firestore.FieldValue.arrayUnion(lessonRef)
@@ -186,6 +187,8 @@ app.post("/mark",async (req,res)=>{
         res.status(200).json(result)
     }
 })
+//Get leaderboards
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
