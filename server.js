@@ -67,7 +67,9 @@ app.post('/signup', async (req, res) => {
             email,
             name,
             surname,
-            createdAt: new Date()
+            createdAt: new Date(),
+            completed_lessons: [],
+            points: 0
         });
 
         console.log('User data saved to Firestore.');
@@ -109,56 +111,81 @@ app.post('/login', async (req, res) => {
     }
 });
 
-//chat route with Azure bot
-app.post('/chat', async (req, res) => {
-    const { message, userId } = req.body;
-
-    try {
-        // Start a new conversation
-        const startConvRes = await axios.post(`${DIRECT_LINE_URL}/conversations`, {}, {
-            headers: {
-                Authorization: `Bearer ${DIRECT_LINE_SECRET}`
-            }
-        });
-
-        const conversationId = startConvRes.data.conversationId;
-
-        // Send the user's message
-        await axios.post(`${DIRECT_LINE_URL}/conversations/${conversationId}/activities`, {
-            type: 'message',
-            from: { id: userId || 'user1' },
-            text: message
-        }, {
-            headers: {
-                Authorization: `Bearer ${DIRECT_LINE_SECRET}`
-            }
-        });
-
-        // Wait briefly to allow bot to respond (real bots take a second)
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Retrieve bot response
-        const activitiesRes = await axios.get(`${DIRECT_LINE_URL}/conversations/${conversationId}/activities`, {
-            headers: {
-                Authorization: `Bearer ${DIRECT_LINE_SECRET}`
-            }
-        });
-
-        const activities = activitiesRes.data.activities;
-        const botMessages = activities.filter(activity => activity.from.id !== (userId || 'user1'));
-
-        res.status(200).json({
-            replies: botMessages.length
-                ? botMessages.map(msg => msg.text).filter(Boolean)
-                : ['I didnt quite catch that. Can you repeat?']
-        });
-
-    } catch (error) {
-        console.error('Chat error:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to communicate with bot' });
+//post to load lessons
+app.post('/getLesson',async (req,res) => {
+    const {lessonsId }=req.body
+    try{
+        const content = await admin.firestore().collection('lessons').where("id","==",lessonsId).get()
+        if(!content.empty){
+            content.forEach(doc=>{
+            const parsed= doc.data()
+            res.status(200).json(
+                parsed
+            )
+        })
+        }else{
+            console.log("Can't find the lesson")
+            res.status(400).json("Failed to find relevant lesson")
+        }
+    }catch (error) {
+        console.error('Login error:', error);
+        res.status(401).json({ error: 'Unauthorized' });
     }
-});
 
+})
+//Load course
+app.post('/getCourse',async (req,res)=>{
+    const{course}=req.body
+    const content= await admin.firestore().collection(lessons).where("language","==",course).get()
+    let summaries=[]
+    if(!content.empty){
+            content.forEach(doc=>{
+                let parsed=doc.data()
+                summaries.push(
+                    {
+                        "description":parsed.lesson_description,
+                        "points":parsed.points,
+                        "name":parsed.name,
+                        "id": parsed.id
+                    }
+                )
+            })
+    }
+    res.status(200).json(
+        course
+        ,summaries
+    )
+})
+//check exercise
+app.post("/mark",async (req,res)=>{
+    const {userId,id,answer}=req.body
+    const memo= await admin.firestore().collection('lessons').where("id","==",id).get()
+    let lessonRef;
+    let result;
+    memo.forEach(doc=>{
+        lessonRef=doc
+    })
+    if(answer===check.get('lesson_answers')){
+        const userRef= admin.firestore().collection('users').doc(userId)
+        await userRef.update({
+            completedLessons: admin.firestore.FieldValue.arrayUnion(lessonRef)
+          })
+        userDoc= await userRef.get()
+        lessonDoc= await lessonRef.get()
+        updated = doc.data().points+lessonDoc.data().points
+        userRef.update({
+            points:updated
+        })
+        result="correct"
+        res.status(200).json(
+            result,
+            updated
+        )
+    }else{
+        result="incorrect"
+        res.status(200).json(result)
+    }
+})
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
