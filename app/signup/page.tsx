@@ -22,12 +22,37 @@ export default function SignupPage() {
     age: "",
     username: "",
   })
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter()
 
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Simulate signup - in real app, create account
-    router.push("/dashboard")
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      const res = await fetch("http://localhost:5000/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          // Optionally send other fields if your backend supports them
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          age: formData.age,
+          username: formData.username,
+        }),
+      });
+
+      if (res.ok) {
+        router.push("/login");
+      } else {
+        const data = await res.json();
+        setError(data.error || "Signup failed");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -130,6 +155,7 @@ export default function SignupPage() {
                 </Button>
               </div>
             </div>
+            {error && <div className="text-red-500 text-sm">{error}</div>}
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"

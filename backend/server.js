@@ -10,7 +10,7 @@ app.use(express.json());
 app.use('/auth', authRouter);
 
 // Start the server
-const PORT = 3000; // You can change the port if needed
+const PORT = 5000; // You can change the port if needed
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

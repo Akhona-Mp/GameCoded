@@ -10,17 +10,29 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Code, Eye, EyeOff } from "lucide-react"
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
+import { firebaseApp } from "../firebaseClient"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Simulate login - in real app, validate credentials
-    router.push("/dashboard")
+    setError(null)
+
+    const auth = getAuth(firebaseApp)
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      // You now have the user and ID token
+      // Optionally: redirect to dashboard
+      router.push("/dashboard")
+    } catch (err: any) {
+      setError(err.message || "Login failed")
+    }
   }
 
   return (
@@ -72,6 +84,7 @@ export default function LoginPage() {
                 </Button>
               </div>
             </div>
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
