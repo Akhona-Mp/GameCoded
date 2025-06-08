@@ -44,6 +44,12 @@ const response = await fetch(`http://localhost:${PORT}/getCourse`, {
           
           const data = await response.json(); // This will now succeed
           return data}
-console.log(await getCourse())
-console.log(await getlesson(3))
-console.log(await mark("ysk2Poa54jQRxPhzs1qxJEZwC3u2",2,["x = 5","int x = 5","x := 5","let x = 5"]))
+      async function signup(){
+        const response =await fetch(`http://localhost:${PORT}/signup`{
+          method: 
+        })
+      }
+// console.log(await getCourse())
+// console.log(await getlesson(3))
+// console.log(await mark("ysk2Poa54jQRxPhzs1qxJEZwC3u2",2,["x = 5","int x = 5","x := 5","let x = 5"]))
+      
