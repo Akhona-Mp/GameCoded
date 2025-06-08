@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
-
+const PORT = process.env.PORT || 3000;
 async function getCourse(){
-const response = await fetch('http://localhost:3013/getCourse', {
+const response = await fetch(`http://localhost:${PORT}/getCourse`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -15,7 +15,7 @@ const response = await fetch('http://localhost:3013/getCourse', {
   return data}
 
   async function getlesson(id){
-    const response = await fetch('http://localhost:3013/getLesson', {
+    const response = await fetch(`http://localhost:${PORT}/getLesson`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -29,7 +29,8 @@ const response = await fetch('http://localhost:3013/getCourse', {
       return data}
 
       async function mark(user,lesson,answers){
-        const response = await fetch('http://localhost:3013/mark', {
+        console.log(answers)
+        const response = await fetch(`http://localhost:${PORT}/mark`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

@@ -8,6 +8,7 @@ import serviceAccount from './firebase-key.json' assert { type: 'json' };
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import _ from 'lodash';
 //axio to make HTTP requests to Azure's Direct Line API
 // const axios = require('axios');
 // require('dotenv').config();
@@ -27,12 +28,12 @@ admin.initializeApp({
 });
 
 const app = express();
-const PORT = process.env.PORT || 3013;
+const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Sample route
+// Sample routef
 app.get('/', (req, res) => {
     res.send('Game-Coded backend is running');
 });
@@ -162,29 +163,29 @@ app.post('/getCourse',async (req,res)=>{
 })
 //check exercise
 app.post("/mark",async (req,res)=>{
-    const {userId,id,answer}=req.body
-    const lessonRef= await admin.firestore().collection('lessons').doc("Lesson"+id)
+    const {userId,lessonId,answer}=req.body
+    console.log(userId)
+    const lessonRef= admin.firestore().collection('lessons').doc("Lesson"+lessonId)
     let result;
-    const check = lessonRef.get()
-    if(answer===check.lesson_answers){
+    const check = (await lessonRef.get()).data()
+    if(_.isEqual(answer,check.lesson_answers)){
         const userRef= admin.firestore().collection('users').doc(userId)
         await userRef.update({
             completedLessons: admin.firestore.FieldValue.arrayUnion(lessonRef)
           })
-        userDoc= await userRef.get()
-        lessonDoc= await lessonRef.get()
-        updated = doc.data().points+lessonDoc.data().points
+        const userDoc= await userRef.get()
+        const updated = userDoc.data().points+check.points
         userRef.update({
             points:updated
         })
         result="correct"
-        res.status(200).json(
+        res.status(200).json({
             result,
-            updated
+            updated}
         )
     }else{
         result="incorrect"
-        res.status(200).json(result)
+        res.status(200).json({result})
     }
 })
 //Get leaderboards
